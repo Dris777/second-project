@@ -1,97 +1,79 @@
-const cart = {
-    items: [],
-    getItems() {
-        return this.items;
-    },
-    add(productObject) {
-        for (const item of this.items) {
-            if (item.name === productObject.name) {
-                item.quantity += 1;
-                return
-            }
-        }
-        const newProduct = {
-            ...productObject,
-            quantity:1,
-        }
-       
-        this.items.push(newProduct)
-        // добавлять карточки: 1 вызов- 1 карточка
-    },
-    remove(productObject) {
-       
-        for (const product of this.items) {
-            // console.log(product.name)
-            
-            // console.log(this.items.indexOf(product))
-            if (product.name === productObject.name) {
-                this.items.splice(this.items.indexOf(product), 1)
-            }
-            
-            for (const product of this.items) {
-                     if (product.name === productObject.name) {
-                
-                this.items.splice(this.items.indexOf(product), 1)
-            }
-                }
-        }
-        // удаляет такую карточку не важно колво
-    },
-    clear() {
-        this.items = []
-    },
-    counTotalPrice() {
-        let totalPrice = 0;
-
-        for (const product of this.items) {
-
-            totalPrice+=product.price * product.quantity
-        }
-
-        return totalPrice
-    },
-     
-    increaseQuantity(productObject) {
-        for (const product of this.items) {
-            if (product.name === productObject) {
-                product.quantity += 1;
-                return
-            }
-
-       }
-     },
-    decreaseQuatity(productObject) {
-        for (const product of this.items) {
-    
-            if (product.name === productObject) {
-                if (product.quantity !==1) {
-                    console.log('da')
-                product.quantity -= 1;
-                    return
-                }
-                else {
-                    this.items.splice(this.items.indexOf(product),1)
-                }
-                
-            }
-        }
-             
-        }
-        // удаляет 1 значение
-    
-
+const Transaction = {
+  DEPOSIT: 'deposit',
+  WITHDRAW:'withdraw',
 }
-cart.add({ name: 'tomato', price: 50 });
-cart.add({ name: 'lemon', price: 60 });
-cart.add({ name: 'tomato', price: 50 });
-cart.add({ name: 'lemon', price: 60 });
-cart.add({ name: 'strawberry', price: 50 });
-cart.remove('lemon');
-// cart.clear();
-// console.log(cart.counTotalPrice());
-cart.increaseQuantity('tomato');
-// console.log(cart.counTotalPrice());
-cart.decreaseQuatity('strawberry');
-console.log(cart.getItems());
 
+const account = {
+  //текущий баланс
+  balance: 0,
+  //история транзакция
+  transactions: [],
+  
+  //метод создает и возвращает обьект транзакции.
+  //принимает сумму и тип транзакции.
+  createTransaction(type, amount) {
+    return {
+      type,
+      amount,
+    }
+  },
+  // метод отвечающий за добавление суммы к балансу.
+  // принимает сумму транзакции.
+  // вызывает createTransaction для создания обьекта
+  // транзакции
+  // после чего добавляет его в историю транзакций.
+  deposit(amount) {
+    this.balance += amount
+    const transactionType = this.createTransaction(Transaction.DEPOSIT, amount);
+    this.transactions.push(transactionType)
+  },
+  // метод отвечающий за снятие суммы с баланса.
+  // принимает сумму транзакции.
+  // вызывает createTransaction для создания обьекта транзнакции.
+  // после чего добавляет его в историю транзакций.
+  // если amount больше чем текущий баланс, выводи сообщение 
+  // о том, что снятие такой суммы не возможно.
+  // недостаточно средств
+  withdraw(amount) {
+    if(this.balance>amount){
+    this.balance -= amount;
+    const transactionType = this.createTransaction(Transaction.WITHDRAW, amount);
+      this.transactions.push(transactionType)
+    }
+    else { 
+      return alert('Баланс слишком маленький')
+    }
+  },
+  // метод возвращает текущий баланс
+  getBalance() {
+    return alert(`${this.balance} - ваш баланс`)
+  },
+  // метод ищет и возвращает транзакции по ид
+  getTransactionDetails(id) {
+    for (const [index, transaction] of this.transactions.entries()) {
+      if (index === id) {
+        return transaction
+      }
+    }
+  },
+//   метод возвращает количество
+//  опрделенного типа транзакции из всей истории транзакций
+ getTransactionTotal(type) {
+   let sum = 0;
+   for (const transaction of this.transactions) {
+     if(transaction['type'] === type){
+       sum +=transaction['amount']
+     }
+   }
+   return sum
+  },
+};
 
+account.deposit(1000);
+account.withdraw(10);
+account.deposit(1000);
+account.withdraw(10);
+// account.getBalance();
+// console.log(account.getTransactionDetails())
+console.log(account.getTransactionTotal(Transaction.DEPOSIT))
+console.log({balance:account.balance, transactions:account.transactions})
